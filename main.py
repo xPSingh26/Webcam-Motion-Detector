@@ -3,6 +3,7 @@ import cv2
 import time
 import glob
 from send_email import send_email
+from threading import Thread
 
 # Start webcam
 video = cv2.VideoCapture(0)
@@ -54,8 +55,10 @@ while True:
     statusList.append(status)
     statusList = statusList[-2:]
     if statusList[0] == 1 and statusList[1] == 0:
-        send_email(image)
-        clean_folder()
+        emailThread = Thread(target=send_email, args=(image, ))
+        emailThread.daemon = True
+        emailThread.start()
+
 
     cv2.imshow("My video", frame)
 
@@ -64,3 +67,4 @@ while True:
         break
 
 video.release()
+clean_folder()
