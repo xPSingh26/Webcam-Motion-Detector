@@ -1,3 +1,4 @@
+import os
 import cv2
 import time
 import glob
@@ -9,6 +10,13 @@ time.sleep(1)
 staticFrame = None
 statusList = []
 count = 1
+
+
+def clean_folder():
+    files = glob.glob("images/*.png")
+    for file in files:
+        os.remove(file)
+
 
 while True:
     status = 0
@@ -45,8 +53,9 @@ while True:
 
     statusList.append(status)
     statusList = statusList[-2:]
-    # if statusList[0] == 1 and statusList[1] == 0:
-    #     send_email(image)
+    if statusList[0] == 1 and statusList[1] == 0:
+        send_email(image)
+        clean_folder()
 
     cv2.imshow("My video", frame)
 
