@@ -1,12 +1,17 @@
 import cv2
 import time
+import glob
+from send_email import send_email
 
 # Start webcam
 video = cv2.VideoCapture(0)
 time.sleep(1)
 staticFrame = None
+statusList = []
+count = 1
 
 while True:
+    status = 0
     # Capture frame and convert into gray blurred
     check, frame = video.read()
     grayFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -27,7 +32,21 @@ while True:
         if cv2.contourArea(contour) < 5000:
             continue
         x, y, w, h = cv2.boundingRect(contour)
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 3)
+        rectangle = cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 3)
+        if rectangle.any():
+            status = 1
+            # Save the frames with object in images
+            cv2.imwrite(f"images/{count}.png", frame)
+            count = count + 1
+            allImages = glob.glob("images/*.png")
+            # save the path to the image in the middle
+            index = int(len(allImages) / 2)
+            image = allImages[index]
+
+    statusList.append(status)
+    statusList = statusList[-2:]
+    # if statusList[0] == 1 and statusList[1] == 0:
+    #     send_email(image)
 
     cv2.imshow("My video", frame)
 
